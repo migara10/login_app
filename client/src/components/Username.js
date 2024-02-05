@@ -48,7 +48,7 @@ function Username() {
             </div>
             <div className="py-4 text-center">
               <span className="text-green-500">
-                Not a Member{" "}
+                Not a Member&nbsp;
                 <Link className="text-red-500" to="/register">
                   Register Now
                 </Link>
