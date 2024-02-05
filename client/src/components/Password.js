@@ -48,7 +48,7 @@ function Password() {
             </div>
             <div className="py-4 text-center">
               <span className="text-green-500">
-                Forgot Password?
+                Forgot Password?&nbsp;
                 <Link className="text-red-500" to="/recovery">
                   Recover Now
                 </Link>
