@@ -22,7 +22,8 @@ export async function passwordValidate(values) {
 
 function passwordVerify(errors = {}, values) {
   const min = 4;
-  const passwordRegex = /^(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~/-])[\w!@#$%^&*()_+{}[\]:;<>,.?~/-]{8,}$/;
+  const passwordRegex =
+    /^(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~/-])[\w!@#$%^&*()_+{}[\]:;<>,.?~/-]{8,}$/;
   if (!values.password) {
     errors.password = toast.error("Require Password...!");
   } else if (values.password.includes(" ")) {
@@ -35,6 +36,20 @@ function passwordVerify(errors = {}, values) {
   return errors;
 }
 
+// validate email
+
+function emailVerify(errors = {}, values) {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!values.email) {
+    errors.userName = toast.error("Require Email...!");
+  } else if (values.email.includes(" ")) {
+    errors.email = toast.error("Wrong Email...!");
+  } else if (!emailRegex.test(values.email)) {
+    errors.email = toast.error("Invalid Email...!");
+  }
+  return errors;
+}
+
 // validate reset password
 export async function resetPasswordValidation(values) {
   const errors = passwordVerify({}, values);
@@ -42,6 +57,16 @@ export async function resetPasswordValidation(values) {
   if (values.password !== values.confirm_pwd) {
     errors.exist = toast.error("Password not match...!");
   }
+
+  return errors;
+}
+
+// validate register form
+
+export async function registerValidate(values) {
+  let errors = userNameVerify({}, values);
+  passwordVerify(errors, values);
+  emailVerify(errors, values);
 
   return errors;
 }
