@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "../styles/Username.module.css";
-import { Toaster } from "react-hot-toast";
 
 function Recovery() {
 
