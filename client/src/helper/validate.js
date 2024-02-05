@@ -70,3 +70,9 @@ export async function registerValidate(values) {
 
   return errors;
 }
+
+// validate profile
+
+export async function profileValidation(values){
+  return emailVerify({}, values)
+}
