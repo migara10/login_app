@@ -1,63 +1,44 @@
 import { Router } from "express";
+import * as controller from './../controllers/appController.js'
 
 const router = Router();
 
 /* post method */
 
 //register user
-router.post("/register", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.post("/register", controller.register);
 
 //send the email
-router.post("/registerMail", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+// router.post("/registerMail", );
 
 //authenticate user
 router.post("/authenticate", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
+  res.end()
 });
 
 //login app
-router.post("/login", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.post("/login", controller.login);
 
 /* get method */
 
 //user with user name
-router.get("/user/:username", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.get("/user/:username", controller.getUser);
 
 //generate random OTP
-router.get("/generateOTP", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.get("/generateOTP", controller.GenerateOTP);
 
 //verify generated OTP
-router.get("/verifyOTP", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.get("/verifyOTP", controller.verifyOTP);
 
 // reset all the variables
-router.get("/createResetSession", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.get("/createResetSession", controller.createResetSession);
 
 /* put method */
 
 //is use to update the user profile
-router.put("/updateUser", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
+router.put("/updateUser", controller.updateUser);
 
 //use to reset password
-router.put("/resetPAssword", (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
-});
-
-// router.route('/register').post((req,res) => res.json('mango'))
+router.put("/resetPAssword", controller.resetPassword);
 
 export default router;
