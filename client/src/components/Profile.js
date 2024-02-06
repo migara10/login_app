@@ -8,7 +8,7 @@ import { profileValidation } from "../helper/validate";
 import convertTopBase64 from "../helper/convert";
 
 function Profile() {
-  const [file, setFIle] = useState();
+  const [file, setFile] = useState();
 
   const formik = useFormik({
     initialValues: {
@@ -29,10 +29,15 @@ function Profile() {
 
   //file upload
   const onUpload = async (e) => {
-    console.log(e.target.file, "upload image");
-    const base64 = await convertTopBase64(e.target.files[0]);
-    setFIle(base64);
-  };
+    try {
+        const base64 = await convertTopBase64(e.target.files[0]);
+        setFile(base64);
+        console.log('File converted successfully:');
+    } catch (error) {
+        console.error('Error converting to base64:', error);
+        // Handle the error as needed
+    }
+};
 
   return (
     <div className="container mx-auto">
