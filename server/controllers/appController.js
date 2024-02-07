@@ -1,6 +1,54 @@
+import UserModel from "../model/user.model.js";
+import bcrypt from "bcrypt";
+
 const register = async (req, res) => {
-  res.json({ ...req.body, ggg: "register route" });
+  try {
+    const { userName, password, email, profile } = req.body;
+
+    // Check if username already exists
+    const existUserName = UserModel.findOne({ userName }).exec();
+
+    // Check if email already exists
+    const existEmail = UserModel.findOne({ email }).exec();
+
+    // Using Promise.all to wait for both checks
+    Promise.all([existUserName, existEmail])
+      .then(([existingUserName, existingEmail]) => {
+        if (existingUserName) {
+          throw new Error("User name is already Exist...!");
+        }
+
+        if (existingEmail) {
+          throw new Error("Email is already Exist...!");
+        }
+
+        // Hash the password
+        return bcrypt.hash(password, 10);
+      })
+      .then((hashPassword) => {
+        const user = new UserModel({
+          userName,
+          password: hashPassword,
+          email,
+          profile: profile || "",
+        });
+
+        // Save the user
+        return user.save();
+      })
+      .then(() => {
+        res.status(201).send({ msg: "User Register Successful" });
+      })
+      .catch((error) => {
+        res
+          .status(500)
+          .send({ error: error.message || "Internal Server Error" });
+      });
+  } catch (error) {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
 };
+
 const login = async (req, res) => {
   res.json({ ...req.body, ggg: "login route" });
 };
