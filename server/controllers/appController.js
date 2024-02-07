@@ -1,57 +1,112 @@
+import userModel from "../model/user.model.js";
 import UserModel from "../model/user.model.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import ENV from "./../config.js";
+
+// check Username
+async function checkExistUserName(userName) {
+  try {
+    const existingUser = await UserModel.findOne({ userName });
+    return !!existingUser; // Return true if user exists, false otherwise
+  } catch (error) {
+    console.error("Error checking existence of username:", error);
+    throw new Error("Error checking existence of username");
+  }
+}
+
+// check email
+async function checkExistEmail(email) {
+  try {
+    const existingUser = await UserModel.findOne({ email });
+    return !!existingUser; // Return true if user exists, false otherwise
+  } catch (error) {
+    console.error("Error checking existence of email:", error);
+    throw new Error("Error checking existence of email");
+  }
+}
 
 const register = async (req, res) => {
   try {
     const { userName, password, email, profile } = req.body;
 
-    // Check if username already exists
-    const existUserName = UserModel.findOne({ userName }).exec();
+    // Check if the username already exists
+    const isUserNameExist = await checkExistUserName(userName);
+    if (isUserNameExist) {
+      return res.status(400).json({ error: "Username already exists" });
+    }
 
-    // Check if email already exists
-    const existEmail = UserModel.findOne({ email }).exec();
+    // Check if the email already exists
+    const isEmailExist = await checkExistEmail(email);
+    if (isEmailExist) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
 
-    // Using Promise.all to wait for both checks
-    Promise.all([existUserName, existEmail])
-      .then(([existingUserName, existingEmail]) => {
-        if (existingUserName) {
-          throw new Error("User name is already Exist...!");
-        }
+    // Hash the password before saving it
+    let hashedPassword;
+    try {
+      hashedPassword = await bcrypt.hash(password, 10);
+    } catch (hashError) {
+      console.error("Error hashing password:", hashError);
+      throw new Error("Error hashing password");
+    }
 
-        if (existingEmail) {
-          throw new Error("Email is already Exist...!");
-        }
+    // Create a new user with the hashed password
+    const newUser = new UserModel({
+      userName,
+      password: hashedPassword,
+      email,
+      profile: profile || "",
+    });
 
-        // Hash the password
-        return bcrypt.hash(password, 10);
-      })
-      .then((hashPassword) => {
-        const user = new UserModel({
-          userName,
-          password: hashPassword,
-          email,
-          profile: profile || "",
-        });
-
-        // Save the user
-        return user.save();
-      })
-      .then(() => {
-        res.status(201).send({ msg: "User Register Successful" });
-      })
-      .catch((error) => {
-        res
-          .status(500)
-          .send({ error: error.message || "Internal Server Error" });
-      });
+    // Save the new user to the database
+    await newUser.save();
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(500).send({ error: "Internal Server Error" });
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const login = async (req, res) => {
-  res.json({ ...req.body, ggg: "login route" });
+  const { userName, password } = req.body;
+  try {
+    await userModel
+      .findOne({ userName })
+      .then((user) => {
+        bcrypt
+          .compare(password, user.password)
+          .then((checkedPassword) => {
+            if (!checkedPassword)
+              return res.status(400).send({ error: "Don't have password...!" });
+
+            // create jwt token
+            const token = jwt.sign(
+              {
+                userId: user._id,
+                userName: user.userName,
+              },
+              ENV.JWT_SECRET,
+              { expiresIn: "24h" }
+            );
+            res.status(200).send({
+              msg: "Login Successful",
+              userName: user.userName,
+              token,
+            });
+          })
+          .catch((error) => {
+            res.status(400).send({ error: "Password not match...!" });
+          });
+      })
+      .catch((error) => {
+        res.status(404).send({ error: "Username not found...!" });
+      });
+  } catch (error) {
+    res.status(500).send({ error });
+  }
 };
+
 const getUser = async (req, res) => {
   res.json({ ...req.body, ggg: "getUser route" });
 };
