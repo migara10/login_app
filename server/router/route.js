@@ -17,7 +17,7 @@ router.post("/authenticate", (req, res) => {
 });
 
 //login app
-router.post("/login", controller.login);
+router.post("/login",controller.verifyUser, controller.login);
 
 /* get method */
 
