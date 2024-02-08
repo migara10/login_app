@@ -1,8 +1,20 @@
-import userModel from "../model/user.model.js";
+
 import UserModel from "../model/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import ENV from "./../config.js";
+
+// verify user
+async function verifyUser(req,res, next){
+    try{
+        const {userName} = (req.method == "GET"? req.query: req.body)
+        let exist = await UserModel.findOne({userName});
+        if(!exist) return res.status(404).send({error: "can't find user!"})
+        next();
+    }catch(error){
+        res.status(404).send({error: "Authentication Error"})
+    }
+}
 
 // check Username
 async function checkExistUserName(userName) {
@@ -71,7 +83,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { userName, password } = req.body;
   try {
-    await userModel
+    await UserModel
       .findOne({ userName })
       .then((user) => {
         bcrypt
@@ -135,4 +147,5 @@ export {
   verifyOTP,
   createResetSession,
   resetPassword,
+  verifyUser,
 };
