@@ -1,19 +1,18 @@
-
 import UserModel from "../model/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import ENV from "./../config.js";
 
 // verify user
-async function verifyUser(req,res, next){
-    try{
-        const {userName} = (req.method == "GET"? req.query: req.body)
-        let exist = await UserModel.findOne({userName});
-        if(!exist) return res.status(404).send({error: "can't find user!"})
-        next();
-    }catch(error){
-        res.status(404).send({error: "Authentication Error"})
-    }
+async function verifyUser(req, res, next) {
+  try {
+    const { userName } = req.method == "GET" ? req.query : req.body;
+    let exist = await UserModel.findOne({ userName });
+    if (!exist) return res.status(404).send({ error: "can't find user!" });
+    next();
+  } catch (error) {
+    res.status(404).send({ error: "Authentication Error" });
+  }
 }
 
 // check Username
@@ -83,8 +82,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { userName, password } = req.body;
   try {
-    await UserModel
-      .findOne({ userName })
+    await UserModel.findOne({ userName })
       .then((user) => {
         bcrypt
           .compare(password, user.password)
@@ -120,8 +118,24 @@ const login = async (req, res) => {
 };
 
 const getUser = async (req, res) => {
-  res.json({ ...req.body, ggg: "getUser route" });
+  try {
+    const { userName } = req.params;
+    UserModel.findOne({ userName }).select('-password')
+      .then((user) => {
+        if (!user) {
+          return res.status(404).send({ error: "User not found" });
+        }
+        return res.status(200).send({ user });
+      })
+      .catch((error) => {
+        console.error(error);
+        return res.status(500).send({ error: "Internal Server Error" });
+      });
+  } catch (error) {
+    return res.status(500).send({ error: "Internal Server Error " });
+  }
 };
+
 const updateUser = async (req, res) => {
   res.json({ ...req.body, ggg: "updateUser route" });
 };

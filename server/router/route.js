@@ -22,7 +22,7 @@ router.post("/login",controller.verifyUser, controller.login);
 /* get method */
 
 //user with user name
-router.get("/user/:username", controller.getUser);
+router.get("/user/:userName", controller.getUser);
 
 //generate random OTP
 router.get("/generateOTP", controller.GenerateOTP);
